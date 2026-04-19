@@ -56,8 +56,41 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem('userInfo');
   };
 
+  // ==========================================
+  // NEW FORGOT PASSWORD FUNCTIONS
+  // ==========================================
+
+  // Request Password Reset (Sends OTP)
+  const requestPasswordReset = async (email) => {
+    try {
+      const { data } = await API.post('/auth/forgot-password', { email });
+      return { success: true, message: data.message };
+    } catch (error) {
+      return { success: false, message: error.response?.data?.message || 'Failed to send OTP' };
+    }
+  };
+
+  // Reset Password (Verify OTP and set new password)
+  const resetPassword = async (email, otp, newPassword) => {
+    try {
+      const { data } = await API.post('/auth/reset-password', { email, otp, newPassword });
+      return { success: true, message: data.message };
+    } catch (error) {
+      return { success: false, message: error.response?.data?.message || 'Failed to reset password' };
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, verifyOtp, logout }}>
+    <AuthContext.Provider value={{ 
+      user, 
+      loading, 
+      login, 
+      register, 
+      verifyOtp, 
+      logout,
+      requestPasswordReset, // Now provided to the rest of the app
+      resetPassword         // Now provided to the rest of the app
+    }}>
       {children}
     </AuthContext.Provider>
   );

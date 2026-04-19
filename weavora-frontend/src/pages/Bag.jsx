@@ -18,7 +18,7 @@ const Bag = () => {
   const handleCheckout = async (e) => {
     e.preventDefault();
     if (!user) {
-      navigate('/auth'); // Force login if trying to checkout while logged out
+      navigate('/login'); // Force login if trying to checkout while logged out
       return;
     }
 
