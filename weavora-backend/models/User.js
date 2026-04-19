@@ -2,23 +2,35 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 
 const userSchema = new mongoose.Schema({
-  name: { type: String, required: true },
+  // Personal Info
+  firstName: { type: String, required: true },
+  lastName: { type: String, required: true },
+  dob: { type: Date, required: true },
+  phone: { type: String, required: true },
+
+  // Account Details
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
   isVerified: { type: Boolean, default: false },
-  otp: { type: String },
-  otpExpires: { type: Date },
-  wishlist: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Product' }],
-  // We'll expand the bag structure later to include sizes, quantities, etc.
-  bag: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Product' }] 
+
+  // Delivery Address
+  fullAddress: { type: String, required: true },
+  city: { type: String, required: true },
+  pincode: { type: String, required: true },
+
+// Change these two lines:
+wishlist: [{ type: String }], // Change from ObjectId to String
+bag: [{ type: String }]      // Change from ObjectId to String
 }, { timestamps: true });
 
 // Hash password before saving
-userSchema.pre('save', async function (next) {
-  if (!this.isModified('password')) return next();
+// Hash password before saving (Modern Async Version)
+userSchema.pre('save', async function () {
+  // If the password hasn't been modified, just return (no next needed)
+  if (!this.isModified('password')) return;
+  
   const salt = await bcrypt.genSalt(10);
   this.password = await bcrypt.hash(this.password, salt);
-  next();
 });
 
 // Method to compare passwords

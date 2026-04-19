@@ -16,23 +16,30 @@ exports.getUserProfile = async (req, res) => {
 };
 
 // @desc    Toggle item in wishlist
-// @route   POST /api/users/wishlist
 exports.toggleWishlist = async (req, res) => {
   try {
     const { productId } = req.body;
+    
+    // Find the user and ensure wishlist exists [cite: 54, 55]
     const user = await User.findById(req.user._id);
+    if (!user) return res.status(404).json({ message: 'User not found' });
 
-    // Check if item is already in wishlist
+    // Initialize wishlist as an array if it's undefined 
+    if (!user.wishlist) {
+      user.wishlist = [];
+    }
+
     const index = user.wishlist.indexOf(productId);
     if (index > -1) {
-      user.wishlist.splice(index, 1); // Remove it
+      user.wishlist.splice(index, 1); // Remove it [cite: 59, 60]
     } else {
-      user.wishlist.push(productId);  // Add it
+      user.wishlist.push(productId); // Add it [cite: 61]
     }
 
     await user.save();
     res.json(user.wishlist);
   } catch (error) {
+    console.error("Wishlist Error:", error); // Logs the real error to terminal
     res.status(500).json({ message: error.message });
   }
 };

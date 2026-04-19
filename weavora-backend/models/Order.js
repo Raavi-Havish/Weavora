@@ -2,13 +2,15 @@ const mongoose = require('mongoose');
 
 const orderSchema = new mongoose.Schema({
   user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-  orderItems: [
-    {
-      product: { type: mongoose.Schema.Types.ObjectId, ref: 'Product', required: true },
-      qty: { type: Number, required: true },
-      size: { type: String, required: true }
-    }
-  ],
+ 
+orderItems: [
+  {
+    // product: { type: mongoose.Schema.Types.ObjectId, ref: 'Product', required: true }, // OLD
+    product: { type: String, required: true }, // NEW: Accepts "w1", "m1", etc.
+    qty: { type: Number, required: true },
+    size: { type: String, required: true }
+  }
+],
   // Taking the location directly as requested
   deliveryLocation: {
     address: { type: String, required: true },
