@@ -3,86 +3,112 @@ import { useNavigate, Link } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 
 const Register = () => {
-  const [showOtp, setShowOtp] = useState(false);
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [otp, setOtp] = useState('');
+  // Use a single object for all form fields as seen in your image
+  const [formData, setFormData] = useState({
+    firstName: '',
+    lastName: '',
+    dob: '',
+    phone: '',
+    email: '',
+    password: '',
+    confirmPassword: '',
+    fullAddress: '',
+    city: '',
+    pincode: ''
+  });
+
   const [error, setError] = useState('');
-  
-  const { register, verifyOtp } = useContext(AuthContext);
+  const { register } = useContext(AuthContext); // [cite: 133, 142]
   const navigate = useNavigate();
+
+  // Handle changes for all inputs dynamically
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
 
-    if (showOtp) {
-      const res = await verifyOtp(email, otp);
-      if (res.success) navigate('/');
-      else setError(res.message);
+    // Basic frontend validation for password matching
+    if (formData.password !== formData.confirmPassword) {
+      return setError("Passwords do not match");
+    }
+
+    // Call register with the full object
+    const res = await register(formData); // [cite: 137]
+    if (res.success) {
+      navigate('/');
     } else {
-      const res = await register(name, email, password);
-      if (res.success) setShowOtp(true);
-      else setError(res.message);
+      setError(res.message); // [cite: 139]
     }
   };
 
   return (
-    <div className="min-h-[85vh] flex">
-      {/* Left Banner */}
-      <div className="hidden lg:flex lg:w-1/2 bg-weavora-dark relative overflow-hidden items-center justify-center">
-        <div className="absolute inset-0 bg-gradient-to-br from-weavora-dark to-[#3b115e] z-0"></div>
-        <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1445205170230-053b83016050?q=80&w=1000&auto=format&fit=crop')] mix-blend-overlay opacity-20 object-cover w-full h-full"></div>
-        <div className="relative z-10 text-center px-12">
-          <h2 className="text-5xl font-extrabold text-white mb-6">Join Weavora.</h2>
-          <p className="text-weavora-light text-xl">Create your account to start styling.</p>
+    <div className="min-h-screen flex bg-gray-50 py-10">
+      <div className="max-w-4xl mx-auto w-full bg-white rounded-3xl shadow-xl flex overflow-hidden border border-gray-100">
+        
+        {/* Left Side Banner */}
+        <div className="hidden lg:flex lg:w-1/3 bg-weavora-dark relative items-center justify-center p-10">
+          <div className="relative z-10 text-center">
+            <h2 className="text-4xl font-extrabold text-white mb-4">Join Weavora.</h2>
+            <p className="text-weavora-light">Create your account to start styling.</p>
+          </div>
         </div>
-      </div>
 
-      {/* Right Form */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-8 bg-gray-50">
-        <div className="w-full max-w-md bg-white rounded-3xl shadow-xl p-10 border border-gray-100">
-          <h2 className="text-3xl font-extrabold text-gray-900 mb-2">{showOtp ? 'Verify OTP' : 'Create Account'}</h2>
-          <p className="text-gray-500 mb-6">{showOtp ? 'We sent a 6-digit code to your email.' : 'Please enter your details to register.'}</p>
+        {/* Right Side Form */}
+        <div className="w-full lg:w-2/3 p-10 overflow-y-auto">
+          <h2 className="text-3xl font-extrabold text-gray-900 mb-6">Create Account</h2>
+          
+          {error && <div className="mb-6 p-3 bg-red-50 text-red-600 rounded-lg text-sm font-medium">{error}</div>}
 
-          {error && <div className="mb-4 p-3 bg-red-50 text-red-600 rounded-lg text-sm">{error}</div>}
-
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {!showOtp ? (
-              <>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
-                  <input type="text" value={name} onChange={(e) => setName(e.target.value)} required className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-weavora-light outline-none" placeholder="John Doe" />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
-                  <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-weavora-light outline-none" placeholder="you@example.com" />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
-                  <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-weavora-light outline-none" placeholder="••••••••" />
-                </div>
-              </>
-            ) : (
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">6-Digit OTP</label>
-                <input type="text" maxLength="6" value={otp} onChange={(e) => setOtp(e.target.value)} required className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-weavora-light outline-none text-center text-2xl tracking-[1em]" placeholder="000000" />
+          <form onSubmit={handleSubmit} className="space-y-8">
+            
+            {/* PERSONAL INFO SECTION */}
+            <div>
+              <h3 className="text-xs font-bold text-weavora-dark uppercase tracking-widest mb-4 border-b pb-1">Personal Info</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <input type="text" name="firstName" placeholder="First Name" required onChange={handleChange} className="w-full px-4 py-3 rounded-xl border border-gray-200 outline-none focus:ring-2 focus:ring-weavora-light" />
+                <input type="text" name="lastName" placeholder="Last Name" required onChange={handleChange} className="w-full px-4 py-3 rounded-xl border border-gray-200 outline-none focus:ring-2 focus:ring-weavora-light" />
+                <input type="date" name="dob" required onChange={handleChange} className="w-full px-4 py-3 rounded-xl border border-gray-200 outline-none focus:ring-2 focus:ring-weavora-light" />
+                <input type="tel" name="phone" placeholder="Phone Number" required onChange={handleChange} className="w-full px-4 py-3 rounded-xl border border-gray-200 outline-none focus:ring-2 focus:ring-weavora-light" />
               </div>
-            )}
+            </div>
 
-            <button type="submit" className="w-full py-3 rounded-xl bg-weavora-dark text-white font-bold text-lg hover:bg-weavora-light hover:text-weavora-dark transition-all shadow-md">
-              {showOtp ? 'Verify & Login' : 'Sign Up'}
+            {/* ACCOUNT DETAILS SECTION */}
+            <div>
+              <h3 className="text-xs font-bold text-weavora-dark uppercase tracking-widest mb-4 border-b pb-1">Account Details</h3>
+              <div className="space-y-4">
+                <input type="email" name="email" placeholder="Email Address" required onChange={handleChange} className="w-full px-4 py-3 rounded-xl border border-gray-200 outline-none focus:ring-2 focus:ring-weavora-light" />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <input type="password" name="password" placeholder="Password" required onChange={handleChange} className="w-full px-4 py-3 rounded-xl border border-gray-200 outline-none focus:ring-2 focus:ring-weavora-light" />
+                  <input type="password" name="confirmPassword" placeholder="Confirm Password" required onChange={handleChange} className="w-full px-4 py-3 rounded-xl border border-gray-200 outline-none focus:ring-2 focus:ring-weavora-light" />
+                </div>
+              </div>
+            </div>
+
+            {/* DELIVERY ADDRESS SECTION */}
+            <div>
+              <h3 className="text-xs font-bold text-weavora-dark uppercase tracking-widest mb-4 border-b pb-1">Delivery Address</h3>
+              <div className="space-y-4">
+                <input type="text" name="fullAddress" placeholder="Full Address (House no, Street, Area)" required onChange={handleChange} className="w-full px-4 py-3 rounded-xl border border-gray-200 outline-none focus:ring-2 focus:ring-weavora-light" />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <input type="text" name="city" placeholder="City" required onChange={handleChange} className="w-full px-4 py-3 rounded-xl border border-gray-200 outline-none focus:ring-2 focus:ring-weavora-light" />
+                  <input type="text" name="pincode" placeholder="6-digit Pincode" required onChange={handleChange} className="w-full px-4 py-3 rounded-xl border border-gray-200 outline-none focus:ring-2 focus:ring-weavora-light" />
+                </div>
+              </div>
+            </div>
+
+            <button type="submit" className="w-full py-4 rounded-xl bg-weavora-dark text-white font-bold text-lg hover:bg-weavora-light hover:text-weavora-dark transition-all shadow-lg">
+              Create Account
             </button>
           </form>
 
-          {!showOtp && (
-            <div className="mt-8 text-center">
-              <p className="text-gray-600">
-                Already have an account? <Link to="/login" className="text-weavora-dark font-bold hover:text-weavora-light transition-colors">Log In</Link>
-              </p>
-            </div>
-          )}
+          <div className="mt-8 text-center">
+            <p className="text-gray-600">
+              Already have an account? <Link to="/login" className="text-weavora-dark font-bold hover:text-weavora-light">Log In</Link>
+            </p>
+          </div>
         </div>
       </div>
     </div>

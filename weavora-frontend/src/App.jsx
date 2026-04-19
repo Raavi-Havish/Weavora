@@ -5,6 +5,7 @@ import Category from './pages/Category';
 import Bag from './pages/Bag';
 import Wishlist from './pages/Wishlist';
 import Profile from './pages/Profile';
+import { Toaster } from 'react-hot-toast';
 import ProtectedRoute from './components/ProtectedRoute'; // Import this!
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -12,6 +13,7 @@ import ForgotPassword from './pages/ForgotPassword';
 function App() {
   return (
     <Router>
+      <Toaster position="bottom-right" reverseOrder={false} />
       <div className="min-h-screen bg-white">
         <Navbar />
         <main>

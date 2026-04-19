@@ -28,15 +28,23 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // Register Function (Sends OTP)
-  const register = async (name, email, password) => {
-    try {
-      const { data } = await API.post('/auth/register', { name, email, password });
-      return { success: true, message: data.message };
-    } catch (error) {
-      return { success: false, message: error.response?.data?.message || 'Registration failed' };
-    }
-  };
+const register = async (userData) => {
+  try {
+    // userData now contains firstName, lastName, dob, phone, etc.
+    const { data } = await API.post('/auth/register', userData);
+    
+    // Since we set up the backend to log them in instantly:
+    setUser(data);
+    localStorage.setItem('userInfo', JSON.stringify(data));
+    
+    return { success: true, message: data.message };
+  } catch (error) {
+    return { 
+      success: false, 
+      message: error.response?.data?.message || 'Registration failed' 
+    };
+  }
+};
 
   // Verify OTP Function
   const verifyOtp = async (email, otp) => {
